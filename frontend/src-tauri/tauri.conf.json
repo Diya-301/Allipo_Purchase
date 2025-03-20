@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "Allipo Purchase App",
+  "productName": "P3 Chem Vendors Database Management",
   "version": "0.1.0",
-  "identifier": "com.allipo.purchase-manager",
+  "identifier": "com.p3.Chem.vendors-manager",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:3000",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Allipo Purchase App",
+        "title": "P3 Vendor Management",
         "width": 800,
         "height": 600,
         "resizable": true,

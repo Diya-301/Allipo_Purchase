@@ -41,12 +41,13 @@ const Login = () => {
             alt="Logo"
           />
           {/* Admin Panel Text */}
-          <div className="flex items-center justify-center text-4xl font-bold text-russian_violet">
-            <MdAdminPanelSettings className="mr-2" />
-            <h3>Admin Panel</h3>
+          <div className="flex items-center justify-center text-center text-4xl font-bold text-russian_violet">
+            <h3>Vendor Management System</h3>
           </div>
         </div>
-        <Atom />
+        <div className="flex items-center justify-center mb-4"> {/* Center the Atom component */}
+      <Atom />
+    </div>
         <form onSubmit={handleLogin}>
           <div className='mb-3 min-w-72'>
             <p className='text-md font-medium text-russian_violet mb-2'>Email Address</p>

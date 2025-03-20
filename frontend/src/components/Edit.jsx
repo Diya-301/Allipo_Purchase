@@ -52,7 +52,7 @@ const Edit = () => {
     <div className="p-6 bg-gray-100 min-h-screen">
       {/* Header */}
       <h1 className="text-3xl font-bold text-center text-gray-800 mb-4">
-        Edit Purchases
+        Edit Vendor List
       </h1>
 
       {/* Search Bar with Cross Icon */}

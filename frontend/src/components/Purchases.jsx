@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import ExpandedRow from "./ExpandedRow"; // Import the new ExpandedRow component
 
 const Purchases = () => {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -34,16 +35,53 @@ const Purchases = () => {
       }
     }
 
-    // Apply search query
-    const values = Object.values(purchase).join(" ").toLowerCase();
+    // Apply search query (only include specific columns)
+    const searchableColumns = [
+      "id",
+      "industries",
+      "type",
+      "product",
+      "vendorName",
+      "businessType",
+      "sourceType",
+      "country",
+      "make",
+      "address",
+      "date",
+    ];
+
+    // Normalize the date for searching
+    const formattedDate = purchase.date
+      ? new Date(purchase.date).toLocaleDateString() // Format as "DD/MM/YYYY"
+      : "";
+
+    const values = searchableColumns
+      .map((column) => {
+        if (column === "date") {
+          return formattedDate; // Use the formatted date for searching
+        }
+        return purchase[column];
+      })
+      .join(" ")
+      .toLowerCase();
+
     return values.includes(searchQuery.toLowerCase());
   });
 
   // Sort data based on sort criteria
   const sortedData = sortColumn
     ? [...filteredData].sort((a, b) => {
-      const valueA = a[sortColumn];
-      const valueB = b[sortColumn];
+      // Handle numeric sorting for 'id' column
+      if (sortColumn === "id") {
+        const valueA = Number(a[sortColumn]); // Convert to number
+        const valueB = Number(b[sortColumn]); // Convert to number
+
+        return sortOrder === "asc" ? valueA - valueB : valueB - valueA;
+      }
+
+      // Handle case-insensitive string sorting for other columns
+      const valueA = String(a[sortColumn]).toLowerCase();
+      const valueB = String(b[sortColumn]).toLowerCase();
 
       if (valueA < valueB) return sortOrder === "asc" ? -1 : 1;
       if (valueA > valueB) return sortOrder === "asc" ? 1 : -1;
@@ -58,6 +96,9 @@ const Purchases = () => {
 
   // Handle sorting
   const handleSort = (column) => {
+    // Exclude sorting for non-sortable columns
+    if (!["id", "product", "vendorName", "country", "make", "address", "date"].includes(column)) return;
+
     if (sortColumn === column) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
@@ -123,7 +164,7 @@ const Purchases = () => {
       </div>
 
       {/* Table */}
-      <h1 className="text-2xl font-bold mb-4">Purchase List</h1>
+      <h1 className="text-2xl font-bold mb-4">Vendor List</h1>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-300">
           <thead>
@@ -140,14 +181,10 @@ const Purchases = () => {
                 "country",
                 "make",
                 "address",
-                "contactPerson",
-                "contactPhone",
-                "contactEmail",
                 "date",
-                "remarks",
               ].map((column) => (
                 <th key={column} className="border p-2">
-                  {["industries", "type", "product", "vendorName", "businessType", "sourceType", "country", "make", "address", "contactPerson", "contactPhone", "contactEmail", "remarks"].includes(column) ? (
+                  {["industries", "type", "businessType", "sourceType", "country", "make"].includes(column) ? (
                     <select
                       value={filters[column] || ""}
                       onChange={(e) =>
@@ -162,22 +199,12 @@ const Purchases = () => {
                         </option>
                       ))}
                     </select>
-                  ) : ["date"].includes(column) ? (
-                    <input
-                      type="date"
-                      value={filters[column] || ""}
-                      onChange={(e) =>
-                        setFilters({ ...filters, [column]: e.target.value || undefined })
-                      }
-                      className="w-full px-2 py-1 border border-gray-300 rounded-md"
-                    />
                   ) : (
                     <div></div> // Empty cell for columns without filters
                   )}
                 </th>
               ))}
             </tr>
-
             {/* Column Headers Row */}
             <tr>
               {[
@@ -191,15 +218,14 @@ const Purchases = () => {
                 "country",
                 "make",
                 "address",
-                "contactPerson",
-                "contactPhone",
-                "contactEmail",
                 "date",
-                "remarks",
               ].map((column) => (
                 <th
                   key={column}
-                  className="border p-2 cursor-pointer text-center"
+                  className={`border p-2 cursor-pointer text-center ${!["id", "product", "vendorName", "country", "make", "address", "date"].includes(column)
+                    ? "cursor-default"
+                    : ""
+                    }`}
                   onClick={() => handleSort(column)}
                 >
                   {column === "id"
@@ -221,94 +247,19 @@ const Purchases = () => {
                     <td className="border p-2 text-center">{purchase.id}</td>
                     <td className="border p-2">{purchase.industries || "-"}</td>
                     <td className="border p-2">{purchase.type || "-"}</td>
-                    <td className="border p-2">{purchase.product}</td>
-                    <td className="border p-2">{purchase.vendorName}</td>
-                    <td className="border p-2">{purchase.businessType}</td>
+                    <td className="border p-2">{purchase.product || "-"}</td>
+                    <td className="border p-2">{purchase.vendorName || "-"}</td>
+                    <td className="border p-2">{purchase.businessType || "-"}</td>
                     <td className="border p-2">{purchase.sourceType || "-"}</td>
                     <td className="border p-2">{purchase.country || "-"}</td>
                     <td className="border p-2">{purchase.make || "-"}</td>
-                    <td className="border p-2">{purchase.address}</td>
-                    <td className="border p-2">{purchase.contactPerson}</td>
-                    <td className="border p-2">{purchase.contactPhone}</td>
-                    <td className="border p-2">{purchase.contactEmail}</td>
+                    <td className="border p-2">{purchase.address || "-"}</td> {/* Updated here */}
                     <td className="border p-2 text-center">
                       {new Date(purchase.date).toLocaleDateString()}
                     </td>
-                    <td className="border p-2">{purchase.remarks || "-"}</td>
                   </tr>
                   {/* Expanded Row */}
-                  {expandedRow === purchase.id && (
-                    <tr>
-                      <td colSpan="15" className="p-4 bg-gray-50">
-                        {/* Card-like Container for Expanded Grades */}
-                        <div className="bg-white border border-gray-200 rounded-lg shadow-md p-6 space-y-4">
-                          <h3 className="text-lg font-semibold text-gray-800">Grades</h3>
-                          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-600">TECH:</span>
-                              <span className="text-base font-semibold text-gray-800">{purchase.TECH?.toString() || "0"}</span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-600">LR:</span>
-                              <span className="text-base font-semibold text-gray-800">{purchase.LR?.toString() || "0"}</span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-600">AR:</span>
-                              <span className="text-base font-semibold text-gray-800">{purchase.AR?.toString() || "0"}</span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-600">ACS:</span>
-                              <span className="text-base font-semibold text-gray-800">{purchase.ACS?.toString() || "0"}</span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-600">FOOD:</span>
-                              <span className="text-base font-semibold text-gray-800">{purchase.FOOD?.toString() || "0"}</span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-600">COSMETIC:</span>
-                              <span className="text-base font-semibold text-gray-800">{purchase.COSMETIC?.toString() || "0"}</span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-600">IH:</span>
-                              <span className="text-base font-semibold text-gray-800">{purchase.IH?.toString() || "0"}</span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-600">IP:</span>
-                              <span className="text-base font-semibold text-gray-800">{purchase.IP?.toString() || "0"}</span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-600">BP:</span>
-                              <span className="text-base font-semibold text-gray-800">{purchase.BP?.toString() || "0"}</span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-600">USP:</span>
-                              <span className="text-base font-semibold text-gray-800">{purchase.USP?.toString() || "0"}</span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-600">PHARMA:</span>
-                              <span className="text-base font-semibold text-gray-800">{purchase.PHARMA?.toString() || "0"}</span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-600">ELECTROPLATING:</span>
-                              <span className="text-base font-semibold text-gray-800">{purchase.ELECTROPLATING?.toString() || "0"}</span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-600">FEED:</span>
-                              <span className="text-base font-semibold text-gray-800">{purchase.FEED?.toString() || "0"}</span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-600">AGRI:</span>
-                              <span className="text-base font-semibold text-gray-800">{purchase.AGRI?.toString() || "0"}</span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-600">IMPORTED:</span>
-                              <span className="text-base font-semibold text-gray-800">{purchase.IMPORTED?.toString() || "0"}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
+                  {expandedRow === purchase.id && <ExpandedRow purchase={purchase} />}
                 </React.Fragment>
               ))
             ) : (

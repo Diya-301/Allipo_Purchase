@@ -20,11 +20,12 @@ const Navbar = () => {
       {/* Logo */}
       <Link to="/welcome">
         <img
-          className="w-[max(10%,150px)] cursor-pointer transition duration-300 transform hover:scale-110"
+          className="w-[max(10%,150px)] h-14 cursor-pointer transition duration-300 transform hover:scale-110"
           src={logo}
           alt="Logo"
         />
       </Link>
+      <h3 className="text-4xl font-bold text-russian_violet">Vendor Database Management System</h3>
 
       {/* Buttons Section */}
       <div className="flex items-center gap-4">

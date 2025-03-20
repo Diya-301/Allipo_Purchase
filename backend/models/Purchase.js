@@ -1,19 +1,25 @@
 const mongoose = require("mongoose");
 
+const contactSchema = new mongoose.Schema({
+    contactPerson: { type: String, required: true },
+    contactPhone: { type: String, required: true },
+    contactEmail: { type: String, required: true }
+});
+
 const purchaseSchema = new mongoose.Schema({
     id: { type: Number, unique: true, required: true },
     industries: { type: String, required: false },
     type: { type: String, required: false },
     product: { type: String, required: true },
     vendorName: { type: String, required: true },
-    businessType: { 
-        type: String, 
-        required: true, 
-        enum: ["Manufacturer", "Importer", "Distributor", "Trader"] 
+    businessType: {
+        type: String,
+        required: true,
+        enum: ["Manufacturer", "Importer", "Distributor", "Trader"]
     },
-    sourceType: { 
-        type: String, 
-        default: "", 
+    sourceType: {
+        type: String,
+        default: "",
         validate: {
             validator: function (value) {
                 if (this.businessType === "Manufacturer") {
@@ -24,9 +30,9 @@ const purchaseSchema = new mongoose.Schema({
             message: "sourceType must be empty if businessType is Manufacturer"
         }
     },
-    country: { 
-        type: String, 
-        default: "", 
+    country: {
+        type: String,
+        default: "",
         validate: {
             validator: function (value) {
                 if (this.businessType === "Manufacturer") {
@@ -39,9 +45,10 @@ const purchaseSchema = new mongoose.Schema({
     },
     make: { type: String, required: false },
     address: { type: String, required: false },
-    contactPerson: { type: String, required: false },
-    contactPhone: { type: String, required: false },
-    contactEmail: { type: String, required: false },
+    contacts: { 
+        type: [contactSchema], 
+        validate: [arrayLimit, '{PATH} exceeds the limit of 1 contact']
+    },
     date: { type: Date, default: Date.now },
 
     TECH: { type: mongoose.Schema.Types.Decimal128, default: 0 },
@@ -62,5 +69,9 @@ const purchaseSchema = new mongoose.Schema({
 
     remarks: { type: String, required: false },
 });
+
+function arrayLimit(val) {
+    return val.length >= 1;
+}
 
 module.exports = mongoose.model("Purchase", purchaseSchema);

@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 const EditForm = ({ id }) => {
     const API_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
+
+    // State to hold form data
     const [formData, setFormData] = useState({
         id: "",
         industries: "",
@@ -17,9 +19,7 @@ const EditForm = ({ id }) => {
         country: "",
         make: "",
         address: "",
-        contactPerson: "",
-        contactPhone: "",
-        contactEmail: "",
+        contacts: [{ contactPerson: "", contactPhone: "", contactEmail: "" }], // At least one contact
         date: new Date().toISOString().split("T")[0],
         TECH: "0",
         LR: "0",
@@ -39,26 +39,34 @@ const EditForm = ({ id }) => {
         remarks: "",
     });
 
+    // Fetch the purchase data for editing
     useEffect(() => {
         const fetchPurchase = async () => {
             try {
                 const response = await axios.get(`${API_URL}/api/purchases/${id}`);
                 const purchase = response.data;
 
+                // Format the date for the input field
                 const formattedDate = new Date(purchase.date).toISOString().split("T")[0];
 
+                // Ensure at least one contact exists
+                const contacts = purchase.contacts.length > 0 ? purchase.contacts : [{ contactPerson: "", contactPhone: "", contactEmail: "" }];
+
+                // Update state with fetched data
                 setFormData({
                     ...purchase,
                     date: formattedDate,
+                    contacts: contacts,
                 });
             } catch (error) {
                 console.error("Error fetching purchase:", error);
-                toast.error("Failed to load purchase data. Please try again.");
+                toast.error("Failed to load vendor data. Please try again.");
             }
         };
         fetchPurchase();
     }, [id]);
 
+    // Handle input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -77,40 +85,90 @@ const EditForm = ({ id }) => {
         }
     };
 
+    // Handle contact changes
+    const handleContactChange = (index, field, value) => {
+        const updatedContacts = [...formData.contacts];
+        updatedContacts[index][field] = value;
+        setFormData((prevData) => ({
+            ...prevData,
+            contacts: updatedContacts,
+        }));
+    };
+
+    // Add a new contact field
+    const addContact = () => {
+        if (formData.contacts.length < 5) {
+            setFormData((prevData) => ({
+                ...prevData,
+                contacts: [
+                    ...prevData.contacts,
+                    { contactPerson: "", contactPhone: "", contactEmail: "" },
+                ],
+            }));
+        } else {
+            toast.warning("You can add a maximum of 5 contacts.");
+        }
+    };
+
+    // Remove a contact field
+    const removeContact = (index) => {
+        if (formData.contacts.length > 1) {
+            const updatedContacts = formData.contacts.filter((_, i) => i !== index);
+            setFormData((prevData) => ({
+                ...prevData,
+                contacts: updatedContacts,
+            }));
+        } else {
+            toast.error("At least one contact is required.");
+        }
+    };
+
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const { id, ...updateData } = formData;
+            // Validate that all contacts have required fields
+            const isValid = formData.contacts.every(
+                (contact) =>
+                    contact.contactPerson &&
+                    contact.contactPhone &&
+                    contact.contactEmail
+            );
 
-            await axios.put(`${API_URL}/api/purchases/${id}`, updateData);
+            if (!isValid) {
+                toast.error("Please fill in all contact details.");
+                return;
+            }
 
-            toast.success("Purchase updated successfully!");
+            // Submit the form data to the backend
+            await axios.put(`${API_URL}/api/purchases/${id}`, formData);
+            toast.success("Vendor updated successfully!");
             navigate("/view");
         } catch (error) {
-            console.error("Error updating purchase:", error);
-            toast.error("Failed to update purchase. Please try again.");
+            console.error("Error updating vendor:", error);
+            toast.error("Failed to update vendor. Please try again.");
         }
     };
 
+    // Handle delete action
     const handleDelete = async () => {
-
-        if (window.confirm("Are you sure you want to delete this purchase?")) {
+        if (window.confirm("Are you sure you want to delete this vendor?")) {
             try {
                 await axios.delete(`${API_URL}/api/purchases/${id}`);
-                toast.success("Purchase deleted successfully!");
+                toast.success("Vendor deleted successfully!");
                 navigate("/view");
             } catch (error) {
-                console.error("Error deleting purchase:", error);
-                toast.error("Failed to delete purchase. Please try again.");
+                console.error("Error deleting vendor:", error);
+                toast.error("Failed to delete vendor. Please try again.");
             }
         }
     };
 
-    return (    
+    return (
         <div className="p-6 bg-gray-100 min-h-screen">
             {/* Header */}
-            <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Edit Purchase</h1>
+            <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Edit Vendor Details</h1>
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md space-y-6">
@@ -127,7 +185,8 @@ const EditForm = ({ id }) => {
                                 id="id"
                                 name="id"
                                 value={formData.id}
-                                disabled // Disable the ID field
+                                onChange={handleChange} // This won't have any effect since the field is disabled
+                                disabled // Disable the field
                                 readOnly // Make it read-only
                                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed sm:text-sm"
                             />
@@ -142,6 +201,7 @@ const EditForm = ({ id }) => {
                                 name="industries"
                                 value={formData.industries}
                                 onChange={handleChange}
+                                required
                                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
                             />
                         </div>
@@ -155,6 +215,7 @@ const EditForm = ({ id }) => {
                                 name="type"
                                 value={formData.type}
                                 onChange={handleChange}
+                                required
                                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
                             />
                         </div>
@@ -247,87 +308,105 @@ const EditForm = ({ id }) => {
                 {/* Section 3: Contact Information */}
                 <div>
                     <h2 className="text-xl font-semibold text-gray-700 mb-4">Contact Information</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label htmlFor="make" className="block text-sm font-medium text-gray-700">
-                                Make
-                            </label>
-                            <input
-                                type="text"
-                                id="make"
-                                name="make"
-                                value={formData.make}
-                                onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                                Address
-                            </label>
-                            <input
-                                type="text"
-                                id="address"
-                                name="address"
-                                value={formData.address}
-                                onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="contactPerson" className="block text-sm font-medium text-gray-700">
-                                Contact Person
-                            </label>
-                            <input
-                                type="text"
-                                id="contactPerson"
-                                name="contactPerson"
-                                value={formData.contactPerson}
-                                onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="contactPhone" className="block text-sm font-medium text-gray-700">
-                                Contact Phone
-                            </label>
-                            <input
-                                type="text"
-                                id="contactPhone"
-                                name="contactPhone"
-                                value={formData.contactPhone}
-                                onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700">
-                                Contact Email
-                            </label>
-                            <input
-                                type="email"
-                                id="contactEmail"
-                                name="contactEmail"
-                                value={formData.contactEmail}
-                                onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="date" className="block text-sm font-medium text-gray-700">
-                                Date
-                            </label>
-                            <input
-                                type="date"
-                                id="date"
-                                name="date"
-                                value={formData.date}
-                                onChange={handleChange}
-                                required
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
-                            />
-                        </div>
+
+                    {/* Make Field */}
+                    <div className="mb-4">
+                        <label htmlFor="make" className="block text-sm font-medium text-gray-700">
+                            Make
+                        </label>
+                        <input
+                            type="text"
+                            id="make"
+                            name="make"
+                            value={formData.make}
+                            onChange={handleChange}
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
+                        />
                     </div>
+
+                    {/* Address Field */}
+                    <div className="mb-4">
+                        <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                            Address
+                        </label>
+                        <input
+                            type="text"
+                            id="address"
+                            name="address"
+                            value={formData.address}
+                            onChange={handleChange}
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
+                        />
+                    </div>
+
+                    {/* Contacts Array */}
+                    {formData.contacts.map((contact, index) => (
+                        <div key={index} className="border p-4 rounded-md mb-4 relative">
+                            <button
+                                type="button"
+                                onClick={() => removeContact(index)}
+                                className="absolute top-1 right-1 bg-red-400 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700 transition duration-300 disabled:bg-gray-300 disabled:text-gray-500"
+                                disabled={formData.contacts.length === 1} // Disable if only one contact
+                            >
+                                <span className="text-xs font-bold">X</span>
+                            </button>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label htmlFor={`contactPerson-${index}`} className="block text-sm font-medium text-gray-700">
+                                        Contact Person
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id={`contactPerson-${index}`}
+                                        value={contact.contactPerson}
+                                        onChange={(e) =>
+                                            handleContactChange(index, "contactPerson", e.target.value)
+                                        }
+                                        required
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor={`contactPhone-${index}`} className="block text-sm font-medium text-gray-700">
+                                        Contact Phone
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id={`contactPhone-${index}`}
+                                        value={contact.contactPhone}
+                                        onChange={(e) =>
+                                            handleContactChange(index, "contactPhone", e.target.value)
+                                        }
+                                        required
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor={`contactEmail-${index}`} className="block text-sm font-medium text-gray-700">
+                                        Contact Email
+                                    </label>
+                                    <input
+                                        type="email"
+                                        id={`contactEmail-${index}`}
+                                        value={contact.contactEmail}
+                                        onChange={(e) =>
+                                            handleContactChange(index, "contactEmail", e.target.value)
+                                        }
+                                        required
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    <button
+                        type="button"
+                        onClick={addContact}
+                        className="px-4 py-2 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600 transition duration-300 disabled:bg-gray-300 disabled:text-gray-500"
+                        disabled={formData.contacts.length >= 5}
+                    >
+                        Add Contact
+                    </button>
                 </div>
 
                 {/* Section 4: Grades */}
@@ -573,18 +652,17 @@ const EditForm = ({ id }) => {
                         type="submit"
                         className="px-6 py-2 bg-green-500 text-white font-medium rounded-md hover:bg-green-600 transition duration-300"
                     >
-                        Update Purchase
+                        Update Vendor
                     </button>
                     <button
                         type="button"
                         onClick={handleDelete}
-                        className="px-6 py-2 bg-red-500 text-white font-medium rounded-md hover:bg-red-600 transition duration-300"
+                        className="px-6 py-2 bg-red-500 text-white font-medium rounded-md hover:bg-red-900 transition duration-300"
                     >
-                        Delete Purchase
+                        Delete Vendor
                     </button>
                 </div>
             </form>
-
         </div>
     );
 };
