@@ -136,44 +136,23 @@ router.delete("/:id", async (req, res) => {
     }
 });
 
+// Fetch all vendor details by vendorName
 router.get("/vendor/:vendorName", async (req, res) => {
     try {
-        const { vendorName } = req.params;
-
-        // Query the database for a matching vendor
-        const vendor = await Purchase.findOne({ vendorName });
-
-        if (!vendor) {
-            return res.status(404).json({ message: "Vendor not found" });
-        }
-
-        // Return relevant fields (e.g., contacts, make, address, industries, type, etc.)
-        const {
-            contacts,
-            make,
-            address,
-            industries,
-            type,
-            businessType,
-            sourceType,
-            country,
-        } = vendor;
-
-        res.json({
-            contacts,
-            make,
-            address,
-            industries,
-            type,
-            businessType,
-            sourceType,
-            country,
-        });
-
+      const { vendorName } = req.params;
+  
+      // Query the database for all matching vendors
+      const vendors = await Purchase.find({ vendorName });
+  
+      if (vendors.length === 0) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+  
+      res.json(vendors); // Return all matching vendors
     } catch (error) {
-        console.error("Error fetching vendor details:", error);
-        res.status(500).json({ message: "Internal server error" });
+      console.error("Error fetching vendor details:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-});
+  });
 
 module.exports = router;

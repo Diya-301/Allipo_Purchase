@@ -40,6 +40,8 @@ const Add = () => {
   });
 
   const [loadingVendor, setLoadingVendor] = useState(false); // Loading state for vendor fetch
+  const [matchingVendors, setMatchingVendors] = useState([]); // State to hold matching vendors
+  const [selectedVendor, setSelectedVendor] = useState(null); // State to hold the selected vendor
 
   // Handle input changes
   const handleChange = (e) => {
@@ -73,37 +75,35 @@ const Add = () => {
 
     try {
       const response = await axios.get(`${API_URL}/api/purchases/vendor/${vendorName}`);
-      const {
-        contacts,
-        make,
-        address,
-        industries,
-        type,
-        businessType,
-        sourceType,
-        country,
-      } = response.data;
+      const vendors = response.data;
 
-      // Autofill the form fields
-      setFormData((prevData) => ({
-        ...prevData,
-        contacts: contacts || [{ contactPerson: "", contactPhone: "", contactEmail: "" }],
-        make: make || "",
-        address: address || "",
-        industries: industries || "",
-        type: type || "",
-        businessType: businessType || "Manufacturer",
-        sourceType: sourceType || "",
-        country: country || "",
-      }));
-
-      toast.success("Vendor details fetched successfully!");
+      if (vendors.length === 0) {
+        toast.error("No matching vendors found.");
+      } else {
+        setMatchingVendors(vendors); // Store matching vendors
+      }
     } catch (error) {
-      toast.error("Vendor not found or an error occurred.");
-      toast.info("Please Enter Correct Vendor name.")
+      console.error("Error fetching vendor details:", error);
+      toast.error("Failed to fetch vendor details.");
     } finally {
       setLoadingVendor(false);
     }
+  };
+
+  // Handle vendor selection
+  const handleVendorSelection = (vendor) => {
+    setSelectedVendor(vendor);
+    setFormData((prevData) => ({
+      ...prevData,
+      contacts: vendor.contacts || [{ contactPerson: "", contactPhone: "", contactEmail: "" }],
+      make: vendor.make || "",
+      address: vendor.address || "",
+      industries: vendor.industries || "",
+      type: vendor.type || "",
+      businessType: vendor.businessType || "Manufacturer",
+      sourceType: vendor.sourceType || "",
+      country: vendor.country || "",
+    }));
   };
 
   // Handle contact changes
@@ -296,6 +296,7 @@ const Add = () => {
                 {loadingVendor ? "Fetching..." : "Fetch Vendor Details"}
               </button>
             </div>
+
             <div>
               <label htmlFor="businessType" className="block text-sm font-medium text-gray-700">
                 Business Type
