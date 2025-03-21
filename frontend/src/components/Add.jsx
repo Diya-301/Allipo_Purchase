@@ -90,6 +90,26 @@ const Add = () => {
     }
   };
 
+  // Reset all form fields
+  const resetForm = () => {
+    setSelectedVendor(null); // Clear the selected vendor
+    setMatchingVendors([]); // Clear the list of matching vendors
+
+    // Reset only the specified fields
+    setFormData((prevData) => ({
+      ...prevData,
+      industries: "",
+      type: "",
+      businessType: "Manufacturer",
+      sourceType: "",
+      country: "",
+      make: "",
+      address: "",
+      contacts: [{ contactPerson: "", contactPhone: "", contactEmail: "" }],
+    }));
+
+    toast.success("Vendor details reset successfully!");
+  };
   // Handle vendor selection
   const handleVendorSelection = (vendor) => {
     setSelectedVendor(vendor);
@@ -286,7 +306,7 @@ const Add = () => {
               />
             </div>
 
-            <div className="flex items-end">
+            <div className="flex items-end space-x-2">
               <button
                 type="button"
                 onClick={fetchVendorDetails}
@@ -295,7 +315,54 @@ const Add = () => {
               >
                 {loadingVendor ? "Fetching..." : "Fetch Vendor Details"}
               </button>
+              <button
+                type="button"
+                onClick={resetForm}
+                className="px-4 py-2 bg-red-500 text-white font-medium rounded-md hover:bg-red-600 transition duration-300"
+              >
+                Reset Vendor Details
+              </button>
             </div>
+            {/* Dropdown for Matching Vendors */}
+            {matchingVendors.length > 0 && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">Select Vendor</label>
+                <select
+                  value={selectedVendor?._id || ""}
+                  onChange={(e) => {
+                    const selectedId = e.target.value;
+
+                    if (!selectedId) {
+                      // Reset the form fields if the placeholder option is selected
+                      setSelectedVendor(null);
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        contacts: [{ contactPerson: "", contactPhone: "", contactEmail: "" }],
+                        make: "",
+                        address: "",
+                        industries: "",
+                        type: "",
+                        businessType: "Manufacturer",
+                        sourceType: "",
+                        country: "",
+                      }));
+                    } else {
+                      // Populate the form fields with the selected vendor's details
+                      const selected = matchingVendors.find((v) => v._id === selectedId);
+                      handleVendorSelection(selected);
+                    }
+                  }}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
+                >
+                  <option value="">-- Select a Vendor --</option>
+                  {matchingVendors.map((vendor) => (
+                    <option key={vendor._id} value={vendor._id}>
+                      {vendor.vendorName} - {vendor.product || "No Product"}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div>
               <label htmlFor="businessType" className="block text-sm font-medium text-gray-700">
