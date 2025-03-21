@@ -39,6 +39,8 @@ const Add = () => {
     remarks: "",
   });
 
+  const [loadingVendor, setLoadingVendor] = useState(false); // Loading state for vendor fetch
+
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,6 +57,52 @@ const Add = () => {
         ...prevData,
         [name]: value,
       }));
+    }
+  };
+
+  // Fetch vendor details on button click
+  const fetchVendorDetails = async () => {
+    const { vendorName } = formData;
+
+    if (!vendorName.trim()) {
+      toast.error("Please enter a vendor name.");
+      return;
+    }
+
+    setLoadingVendor(true);
+
+    try {
+      const response = await axios.get(`${API_URL}/api/purchases/vendor/${vendorName}`);
+      const {
+        contacts,
+        make,
+        address,
+        industries,
+        type,
+        businessType,
+        sourceType,
+        country,
+      } = response.data;
+
+      // Autofill the form fields
+      setFormData((prevData) => ({
+        ...prevData,
+        contacts: contacts || [{ contactPerson: "", contactPhone: "", contactEmail: "" }],
+        make: make || "",
+        address: address || "",
+        industries: industries || "",
+        type: type || "",
+        businessType: businessType || "Manufacturer",
+        sourceType: sourceType || "",
+        country: country || "",
+      }));
+
+      toast.success("Vendor details fetched successfully!");
+    } catch (error) {
+      toast.error("Vendor not found or an error occurred.");
+      toast.info("Please Enter Correct Vendor name.")
+    } finally {
+      setLoadingVendor(false);
     }
   };
 
@@ -236,6 +284,17 @@ const Add = () => {
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
               />
+            </div>
+
+            <div className="flex items-end">
+              <button
+                type="button"
+                onClick={fetchVendorDetails}
+                disabled={loadingVendor}
+                className="px-4 py-2 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600 transition duration-300 disabled:bg-gray-300 disabled:text-gray-500"
+              >
+                {loadingVendor ? "Fetching..." : "Fetch Vendor Details"}
+              </button>
             </div>
             <div>
               <label htmlFor="businessType" className="block text-sm font-medium text-gray-700">

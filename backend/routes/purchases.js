@@ -5,9 +5,9 @@ const router = express.Router();
 
 async function getNextSequenceValue(sequenceName) {
     const counter = await Counter.findOneAndUpdate(
-        { _id: sequenceName }, 
+        { _id: sequenceName },
         { $inc: { sequence_value: 1 } },
-        { new: true, upsert: true } 
+        { new: true, upsert: true }
     );
 
     return counter.sequence_value;
@@ -133,6 +133,46 @@ router.delete("/:id", async (req, res) => {
         res.json({ message: "Purchase deleted successfully" });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+router.get("/vendor/:vendorName", async (req, res) => {
+    try {
+        const { vendorName } = req.params;
+
+        // Query the database for a matching vendor
+        const vendor = await Purchase.findOne({ vendorName });
+
+        if (!vendor) {
+            return res.status(404).json({ message: "Vendor not found" });
+        }
+
+        // Return relevant fields (e.g., contacts, make, address, industries, type, etc.)
+        const {
+            contacts,
+            make,
+            address,
+            industries,
+            type,
+            businessType,
+            sourceType,
+            country,
+        } = vendor;
+
+        res.json({
+            contacts,
+            make,
+            address,
+            industries,
+            type,
+            businessType,
+            sourceType,
+            country,
+        });
+
+    } catch (error) {
+        console.error("Error fetching vendor details:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
 });
 
