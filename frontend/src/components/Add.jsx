@@ -40,8 +40,6 @@ const Add = () => {
   });
 
   const [loadingVendor, setLoadingVendor] = useState(false); // Loading state for vendor fetch
-  const [matchingVendors, setMatchingVendors] = useState([]); // State to hold matching vendors
-  const [selectedVendor, setSelectedVendor] = useState(null); // State to hold the selected vendor
 
   // Handle input changes
   const handleChange = (e) => {
@@ -75,16 +73,34 @@ const Add = () => {
 
     try {
       const response = await axios.get(`${API_URL}/api/purchases/vendor/${vendorName}`);
-      const vendors = response.data;
+      const {
+        contacts,
+        make,
+        address,
+        industries,
+        type,
+        businessType,
+        sourceType,
+        country,
+      } = response.data;
 
-      if (vendors.length === 0) {
-        toast.error("No matching vendors found.");
-      } else {
-        setMatchingVendors(vendors); // Store matching vendors
-      }
+      // Autofill the form fields
+      setFormData((prevData) => ({
+        ...prevData,
+        contacts: contacts || [{ contactPerson: "", contactPhone: "", contactEmail: "" }],
+        make: make || "",
+        address: address || "",
+        industries: industries || "",
+        type: type || "",
+        businessType: businessType || "Manufacturer",
+        sourceType: sourceType || "",
+        country: country || "",
+      }));
+
+      toast.success("Vendor details fetched successfully!");
     } catch (error) {
       console.error("Error fetching vendor details:", error);
-      toast.error("Failed to fetch vendor details.");
+      toast.error("Vendor not found or an error occurred.");
     } finally {
       setLoadingVendor(false);
     }
@@ -92,8 +108,6 @@ const Add = () => {
 
   // Reset all form fields
   const resetForm = () => {
-    setSelectedVendor(null); // Clear the selected vendor
-    setMatchingVendors([]); // Clear the list of matching vendors
 
     // Reset only the specified fields
     setFormData((prevData) => ({
@@ -323,47 +337,6 @@ const Add = () => {
                 Reset Vendor Details
               </button>
             </div>
-            {/* Dropdown for Matching Vendors */}
-            {matchingVendors.length > 0 && (
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Select Vendor</label>
-                <select
-                  value={selectedVendor?._id || ""}
-                  onChange={(e) => {
-                    const selectedId = e.target.value;
-
-                    if (!selectedId) {
-                      // Reset the form fields if the placeholder option is selected
-                      setSelectedVendor(null);
-                      setFormData((prevData) => ({
-                        ...prevData,
-                        contacts: [{ contactPerson: "", contactPhone: "", contactEmail: "" }],
-                        make: "",
-                        address: "",
-                        industries: "",
-                        type: "",
-                        businessType: "Manufacturer",
-                        sourceType: "",
-                        country: "",
-                      }));
-                    } else {
-                      // Populate the form fields with the selected vendor's details
-                      const selected = matchingVendors.find((v) => v._id === selectedId);
-                      handleVendorSelection(selected);
-                    }
-                  }}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
-                >
-                  <option value="">-- Select a Vendor --</option>
-                  {matchingVendors.map((vendor) => (
-                    <option key={vendor._id} value={vendor._id}>
-                      {vendor.vendorName} - {vendor.product || "No Product"}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
             <div>
               <label htmlFor="businessType" className="block text-sm font-medium text-gray-700">
                 Business Type
