@@ -6,15 +6,14 @@ const ExpandedRow = ({ purchase }) => {
       {/* Card-like Container for Expanded Content */}
       <div className="bg-white border border-gray-200 rounded-xl shadow-md p-6 space-y-4">
         {/* Grades Section */}
-        <h3 className="text-lg font-semibold text-black">Grades:</h3>
+        <h3 className="text-lg font-semibold text-black ">Grades - (Rates INR per KG):</h3>
         <div className="grid grid-cols-8 gap-4">
           {/* Grades Section (5/8 width) */}
-          <div className="col-span-5  gap-4 bg-gray-100 rounded-md p-2 pl-4 ">
+          <div className="col-span-4 gap-4 bg-gray-100 rounded-md p-2 pl-4 shadow-lg">
             {(() => {
-              // Filter grades to exclude unwanted fields
               const filteredGrades = Object.entries(purchase).filter(([key, value]) => {
                 const excludedFields = [
-                  "_id", // MongoDB ID
+                  "_id",
                   "id",
                   "product",
                   "vendorName",
@@ -22,15 +21,15 @@ const ExpandedRow = ({ purchase }) => {
                   "sourceType",
                   "country",
                   "make",
-                  "contacts", // Contacts array
+                  "contacts",
                   "date",
                   "remarks",
                   "address",
+                  "website",
                 ];
                 return !excludedFields.includes(key) && typeof value === "number" && value !== 0;
               });
 
-              // If no grades are found, display a fallback message
               if (filteredGrades.length === 0) {
                 return (
                   <div className="flex items-center justify-center text-gray-600">
@@ -39,7 +38,6 @@ const ExpandedRow = ({ purchase }) => {
                 );
               }
 
-              // Split grades into 3 columns
               const gradesPerColumn = Math.ceil(filteredGrades.length / 3);
               const gradeColumns = Array.from({ length: 3 }, (_, i) =>
                 filteredGrades.slice(i * gradesPerColumn, (i + 1) * gradesPerColumn)
@@ -48,9 +46,8 @@ const ExpandedRow = ({ purchase }) => {
               return (
                 <div className="grid grid-cols-3 gap-4">
                   {gradeColumns.map((column, columnIndex) => {
-                    // Only render the table if the column has grades
                     if (column.length === 0) {
-                      return null; // Skip rendering this column
+                      return null;
                     }
 
                     return (
@@ -68,7 +65,7 @@ const ExpandedRow = ({ purchase }) => {
                                 scope="col"
                                 className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                               >
-                                Prices <span className="lowercase">(in ₹)</span>
+                                Rate -INR<span className="lowercase">/kg</span>
                               </th>
                             </tr>
                           </thead>
@@ -79,7 +76,7 @@ const ExpandedRow = ({ purchase }) => {
                                   {key.toUpperCase()}
                                 </td>
                                 <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-800">
-                                  {value}
+                                  {value.toFixed(2)}
                                 </td>
                               </tr>
                             ))}
@@ -94,7 +91,7 @@ const ExpandedRow = ({ purchase }) => {
           </div>
 
           {/* Contact Information Section (3/8 width) */}
-          <div className="col-span-3 bg-gray-100 rounded-md p-2 pl-4 shadow-lg">
+          <div className="col-span-4 bg-gray-100 rounded-md p-2 pl-4 shadow-lg">
             {purchase.contacts && purchase.contacts.length > 0 ? (
               <div className="overflow-x-auto p-2">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -157,13 +154,20 @@ const ExpandedRow = ({ purchase }) => {
             </p>
           </div>
 
-          {/* Address Section (3/8 width) */}
-          <div className="col-span-3 bg-gray-100 rounded-md p-2 pl-4 shadow-lg min-h-[56px] flex flex-col">
+          {/* Address and Website Section (3/8 width) */}
+          <div className="col-span-3 bg-gray-100 rounded-md p-2 pl-4 shadow-lg min-h-[56px] flex flex-col space-y-2">
             <p className="text-lg font-semibold text-black whitespace-nowrap mr-2 flex items-start">
               Address:
             </p>
-            <p className="text-base  text-gray-700 flex-1 leading-[1.4] break-words">
+            <p className="text-base text-gray-700 flex-1 leading-[1.4] break-words">
               {purchase.address || "No address available."}
+            </p>
+
+            <p className="text-lg font-semibold text-black whitespace-nowrap mr-2 flex items-start">
+              Website:
+            </p>
+            <p className="text-base text-gray-700 flex-1 leading-[1.4] break-words">
+              {purchase.website || "No website information available."}
             </p>
           </div>
         </div>

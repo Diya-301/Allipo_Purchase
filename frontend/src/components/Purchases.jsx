@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import ExpandedRow from "./ExpandedRow"; // Import the new ExpandedRow component
+import ExpandedRow from "./ExpandedRow";
 
 const Purchases = () => {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -10,10 +10,9 @@ const Purchases = () => {
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10); // Control number of rows per page
-  const [expandedRow, setExpandedRow] = useState(null); // Track which row is expanded
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [expandedRow, setExpandedRow] = useState(null);
 
-  // Fetch data from the backend
   useEffect(() => {
     const fetchPurchases = async () => {
       try {
@@ -26,16 +25,12 @@ const Purchases = () => {
     fetchPurchases();
   }, []);
 
-  // Filter data based on filters and search query
   const filteredData = purchases.filter((purchase) => {
-    // Apply filters
     for (const key in filters) {
       if (filters[key] && !String(purchase[key]).toLowerCase().includes(filters[key].toLowerCase())) {
         return false;
       }
     }
-
-    // Apply search query (only include specific columns)
     const searchableColumns = [
       "id",
       "industries",
@@ -50,15 +45,14 @@ const Purchases = () => {
       "date",
     ];
 
-    // Normalize the date for searching
     const formattedDate = purchase.date
-      ? new Date(purchase.date).toLocaleDateString() // Format as "DD/MM/YYYY"
+      ? new Date(purchase.date).toLocaleDateString()
       : "";
 
     const values = searchableColumns
       .map((column) => {
         if (column === "date") {
-          return formattedDate; // Use the formatted date for searching
+          return formattedDate;
         }
         return purchase[column];
       })
@@ -68,18 +62,14 @@ const Purchases = () => {
     return values.includes(searchQuery.toLowerCase());
   });
 
-  // Sort data based on sort criteria
   const sortedData = sortColumn
     ? [...filteredData].sort((a, b) => {
-      // Handle numeric sorting for 'id' column
       if (sortColumn === "id") {
-        const valueA = Number(a[sortColumn]); // Convert to number
-        const valueB = Number(b[sortColumn]); // Convert to number
+        const valueA = Number(a[sortColumn]);
+        const valueB = Number(b[sortColumn]);
 
         return sortOrder === "asc" ? valueA - valueB : valueB - valueA;
       }
-
-      // Handle case-insensitive string sorting for other columns
       const valueA = String(a[sortColumn]).toLowerCase();
       const valueB = String(b[sortColumn]).toLowerCase();
 
@@ -89,14 +79,11 @@ const Purchases = () => {
     })
     : filteredData;
 
-  // Pagination Logic
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
   const currentRows = sortedData.slice(indexOfFirstRow, indexOfLastRow);
 
-  // Handle sorting
   const handleSort = (column) => {
-    // Exclude sorting for non-sortable columns
     if (!["id", "product", "vendorName", "country", "make", "address", "date"].includes(column)) return;
 
     if (sortColumn === column) {
@@ -107,23 +94,20 @@ const Purchases = () => {
     }
   };
 
-  // Get unique values for dropdowns
   const getUniqueValues = (key) => {
-    return [...new Set(purchases.map((p) => p[key]))].filter(Boolean); // Remove null/undefined values
+    return [...new Set(purchases.map((p) => p[key]))].filter(Boolean);
   };
 
-  // Clear Filters Function
   const clearFilters = () => {
-    setFilters({}); // Reset all filters
-    setSearchQuery(""); // Reset search query
-    setCurrentPage(1); // Reset to the first page
-    setSortColumn(null); // Remove sorting column
-    setSortOrder("asc"); // Reset sort order to default (ascending)
+    setFilters({});
+    setSearchQuery("");
+    setCurrentPage(1);
+    setSortColumn(null);
+    setSortOrder("asc");
   };
 
-  // Toggle expanded row
   const toggleExpandedRow = (id) => {
-    setExpandedRow(expandedRow === id ? null : id); // Collapse if already expanded, otherwise expand
+    setExpandedRow(expandedRow === id ? null : id);
   };
 
   return (
@@ -151,7 +135,7 @@ const Purchases = () => {
             value={rowsPerPage}
             onChange={(e) => {
               setRowsPerPage(Number(e.target.value));
-              setCurrentPage(1); // Reset to first page when changing rows per page
+              setCurrentPage(1);
             }}
             className="px-2 py-1 border border-gray-300 rounded-md"
           >
@@ -200,7 +184,7 @@ const Purchases = () => {
                       ))}
                     </select>
                   ) : (
-                    <div></div> // Empty cell for columns without filters
+                    <div></div>
                   )}
                 </th>
               ))}
@@ -253,7 +237,7 @@ const Purchases = () => {
                     <td className="border p-2">{purchase.sourceType || "-"}</td>
                     <td className="border p-2">{purchase.country || "-"}</td>
                     <td className="border p-2">{purchase.make || "-"}</td>
-                    <td className="border p-2">{purchase.address || "-"}</td> {/* Updated here */}
+                    <td className="border p-2">{purchase.address || "-"}</td>
                     <td className="border p-2 text-center">
                       {new Date(purchase.date).toLocaleDateString()}
                     </td>

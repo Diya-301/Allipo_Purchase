@@ -45,6 +45,7 @@ const purchaseSchema = new mongoose.Schema({
     },
     make: { type: String, required: false },
     address: { type: String, required: false },
+    website: { type: String, required: false },
     contacts: { 
         type: [contactSchema], 
         validate: [arrayLimit, '{PATH} exceeds the limit of 1 contact']

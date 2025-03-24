@@ -19,6 +19,7 @@ const EditForm = ({ id }) => {
         country: "",
         make: "",
         address: "",
+        website: "",
         contacts: [{ contactPerson: "", contactPhone: "", contactEmail: "" }], // At least one contact
         date: new Date().toISOString().split("T")[0],
         TECH: "0",
@@ -339,6 +340,21 @@ const EditForm = ({ id }) => {
                         />
                     </div>
 
+                    {/* Website Field */}
+                    <div className="mb-4">
+                        <label htmlFor="website" className="block text-sm font-medium text-gray-700">
+                            Website
+                        </label>
+                        <input
+                            type="text"
+                            id="website"
+                            name="website"
+                            value={formData.website}
+                            onChange={handleChange}
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
+                        />
+                    </div>
+
                     {/* Contacts Array */}
                     {formData.contacts.map((contact, index) => (
                         <div key={index} className="border p-4 rounded-md mb-4 relative">
@@ -411,7 +427,7 @@ const EditForm = ({ id }) => {
 
                 {/* Section 4: Grades */}
                 <div>
-                    <h2 className="text-xl font-semibold text-gray-700 mb-4">Grades</h2>
+                    <h2 className="text-xl font-semibold text-gray-700 mb-4">Grades - (Rates INR per KG)</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         <div>
                             <label htmlFor="TECH" className="block text-sm font-medium text-gray-700">

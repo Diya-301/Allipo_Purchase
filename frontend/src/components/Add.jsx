@@ -19,6 +19,7 @@ const Add = () => {
     country: "",
     make: "",
     address: "",
+    website: "",
     contacts: [{ contactPerson: "", contactPhone: "", contactEmail: "" }], // Array of contacts
     date: new Date().toISOString().split("T")[0], // Default to today's date
     TECH: "0",
@@ -77,6 +78,7 @@ const Add = () => {
         contacts,
         make,
         address,
+        website,
         industries,
         type,
         businessType,
@@ -90,6 +92,7 @@ const Add = () => {
         contacts: contacts || [{ contactPerson: "", contactPhone: "", contactEmail: "" }],
         make: make || "",
         address: address || "",
+        website: website || "",
         industries: industries || "",
         type: type || "",
         businessType: businessType || "Manufacturer",
@@ -119,25 +122,11 @@ const Add = () => {
       country: "",
       make: "",
       address: "",
+      website:"",
       contacts: [{ contactPerson: "", contactPhone: "", contactEmail: "" }],
     }));
 
     toast.success("Vendor details reset successfully!");
-  };
-  // Handle vendor selection
-  const handleVendorSelection = (vendor) => {
-    setSelectedVendor(vendor);
-    setFormData((prevData) => ({
-      ...prevData,
-      contacts: vendor.contacts || [{ contactPerson: "", contactPhone: "", contactEmail: "" }],
-      make: vendor.make || "",
-      address: vendor.address || "",
-      industries: vendor.industries || "",
-      type: vendor.type || "",
-      businessType: vendor.businessType || "Manufacturer",
-      sourceType: vendor.sourceType || "",
-      country: vendor.country || "",
-    }));
   };
 
   // Handle contact changes
@@ -422,6 +411,21 @@ const Add = () => {
             />
           </div>
 
+          {/* Website Field */}
+          <div className="mb-4">
+            <label htmlFor="website" className="block text-sm font-medium text-gray-700">
+              Website
+            </label>
+            <input
+              type="text"
+              id="website"
+              name="website"
+              value={formData.website}
+              onChange={handleChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+
           {/* Contacts Array */}
           {formData.contacts.map((contact, index) => (
             <div key={index} className="border p-4 rounded-md mb-4 relative">
@@ -494,7 +498,7 @@ const Add = () => {
 
         {/* Section 4: Grades */}
         <div>
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">Grades</h2>
+          <h2 className="text-xl font-semibold text-gray-700 mb-4">Grades - (Rates INR per KG)</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <div>
               <label htmlFor="TECH" className="block text-sm font-medium text-gray-700">
