@@ -64,20 +64,25 @@ const Purchases = () => {
 
   const sortedData = sortColumn
     ? [...filteredData].sort((a, b) => {
-      if (sortColumn === "id") {
-        const valueA = Number(a[sortColumn]);
-        const valueB = Number(b[sortColumn]);
+        if (sortColumn === "id") {
+          const valueA = Number(a[sortColumn]);
+          const valueB = Number(b[sortColumn]);
 
-        return sortOrder === "asc" ? valueA - valueB : valueB - valueA;
-      }
-      const valueA = String(a[sortColumn]).toLowerCase();
-      const valueB = String(b[sortColumn]).toLowerCase();
+          return sortOrder === "asc" ? valueA - valueB : valueB - valueA;
+        }
+        const valueA = String(a[sortColumn]).toLowerCase();
+        const valueB = String(b[sortColumn]).toLowerCase();
 
-      if (valueA < valueB) return sortOrder === "asc" ? -1 : 1;
-      if (valueA > valueB) return sortOrder === "asc" ? 1 : -1;
-      return 0;
-    })
+        if (valueA < valueB) return sortOrder === "asc" ? -1 : 1;
+        if (valueA > valueB) return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      })
     : filteredData;
+
+  // Reset currentPage to 1 when searchQuery, filters, or sorting changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filters, sortColumn, sortOrder]);
 
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -135,7 +140,7 @@ const Purchases = () => {
             value={rowsPerPage}
             onChange={(e) => {
               setRowsPerPage(Number(e.target.value));
-              setCurrentPage(1);
+              setCurrentPage(1); // Reset page when rows per page changes
             }}
             className="px-2 py-1 border border-gray-300 rounded-md"
           >
