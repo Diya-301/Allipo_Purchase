@@ -76,28 +76,16 @@ const Add = () => {
       const response = await axios.get(`${API_URL}/api/purchases/vendor/${vendorName}`);
       const {
         contacts,
-        make,
         address,
         website,
-        industries,
-        type,
-        businessType,
-        sourceType,
-        country,
       } = response.data;
 
       // Autofill the form fields
       setFormData((prevData) => ({
         ...prevData,
         contacts: contacts || [{ contactPerson: "", contactPhone: "", contactEmail: "" }],
-        make: make || "",
         address: address || "",
         website: website || "",
-        industries: industries || "",
-        type: type || "",
-        businessType: businessType || "Manufacturer",
-        sourceType: sourceType || "",
-        country: country || "",
       }));
 
       toast.success("Vendor details fetched successfully!");
@@ -115,12 +103,6 @@ const Add = () => {
     // Reset only the specified fields
     setFormData((prevData) => ({
       ...prevData,
-      industries: "",
-      type: "",
-      businessType: "Manufacturer",
-      sourceType: "",
-      country: "",
-      make: "",
       address: "",
       website:"",
       contacts: [{ contactPerson: "", contactPhone: "", contactEmail: "" }],

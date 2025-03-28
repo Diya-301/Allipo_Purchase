@@ -151,26 +151,14 @@ router.get("/vendor/:vendorName", async (req, res) => {
         // Return relevant fields (e.g., contacts, make, address, industries, type, etc.)
         const {
             contacts,
-            make,
             address,
             website,
-            industries,
-            type,
-            businessType,
-            sourceType,
-            country,
         } = vendor;
 
         res.json({
             contacts,
-            make,
             address,
             website,
-            industries,
-            type,
-            businessType,
-            sourceType,
-            country,
         });
     } catch (error) {
         console.error("Error fetching vendor details:", error);
