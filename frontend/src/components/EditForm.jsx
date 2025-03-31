@@ -3,9 +3,10 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const EditForm = ({ id }) => {
+const EditForm = () => {
     const API_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
+    const { id } = useParams();
 
     // State to hold form data
     const [formData, setFormData] = useState({
@@ -142,13 +143,35 @@ const EditForm = ({ id }) => {
                 return;
             }
 
-            // Submit the form data to the backend
-            await axios.put(`${API_URL}/api/purchases/${id}`, formData);
-            toast.success("Vendor updated successfully!");
+            // First, get all entries with the same vendor name
+            const response = await axios.get(`${API_URL}/api/purchases`);
+            const allPurchases = response.data;
+            const sameVendorEntries = allPurchases.filter(
+                (purchase) => purchase.vendorName === formData.vendorName && purchase.id !== parseInt(id)
+            );
+
+            // Update all entries with the same vendor name (only contacts, address, website)
+            const updatePromises = sameVendorEntries.map(async (purchase) => {
+                const updatedData = {
+                    ...purchase,
+                    contacts: formData.contacts,
+                    address: formData.address,
+                    website: formData.website,
+                };
+                return axios.put(`${API_URL}/api/purchases/${purchase.id}`, updatedData);
+            });
+
+            // Update the current entry with all fields
+            const currentEntryUpdate = axios.put(`${API_URL}/api/purchases/${id}`, formData);
+
+            // Wait for all updates to complete
+            await Promise.all([...updatePromises, currentEntryUpdate]);
+
+            toast.success(`Updated vendor entry and synchronized contact information for ${sameVendorEntries.length} related entries!`);
             navigate("/view");
         } catch (error) {
             console.error("Error updating vendor:", error);
-            toast.error("Failed to update vendor. Please try again.");
+            toast.error("Failed to update vendor entry. Please try again.");
         }
     };
 

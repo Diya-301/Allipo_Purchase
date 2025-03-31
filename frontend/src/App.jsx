@@ -9,10 +9,11 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
 import Add from "./components/Add";
 import Edit from "./components/Edit";
+import EditForm from "./components/EditForm";
 
 const App = () => {
   const location = useLocation();
-  const shouldShowNavbar = location.pathname !== "/";
+  const shouldShowNavbar = location.pathname !== "/" && location.pathname !== "/welcome";
 
   return (
     <>
@@ -36,6 +37,7 @@ const App = () => {
           <Route path="/view" element={<ProtectedRoute> <Purchases /> </ProtectedRoute>} />
           <Route path="/add" element={<ProtectedRoute> <Add /> </ProtectedRoute>} />
           <Route path="/edit" element={<ProtectedRoute> <Edit /> </ProtectedRoute>} />
+          <Route path="/edit/:id" element={<ProtectedRoute> <EditForm /> </ProtectedRoute>} />
         </Routes>
 
     </>

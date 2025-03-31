@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ExpandedRow from "./ExpandedRow";
+import { useNavigate } from "react-router-dom";
 
 const Purchases = () => {
   const API_URL = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
   const [purchases, setPurchases] = useState([]);
   const [filters, setFilters] = useState({});
   const [sortColumn, setSortColumn] = useState(null);
@@ -115,6 +117,10 @@ const Purchases = () => {
     setExpandedRow(expandedRow === id ? null : id);
   };
 
+  const handleEdit = (id) => {
+    navigate(`/edit/${id}`);
+  };
+
   return (
     <div className="p-4">
       {/* Search Bar, Rows Per Page, and Clear Filters Button */}
@@ -171,6 +177,7 @@ const Purchases = () => {
                 "make",
                 "address",
                 "date",
+                "actions"
               ].map((column) => (
                 <th key={column} className="border p-2">
                   {["industries", "type", "businessType", "sourceType", "country", "make"].includes(column) ? (
@@ -208,6 +215,7 @@ const Purchases = () => {
                 "make",
                 "address",
                 "date",
+                "actions"
               ].map((column) => (
                 <th
                   key={column}
@@ -215,10 +223,12 @@ const Purchases = () => {
                     ? "cursor-default"
                     : ""
                     }`}
-                  onClick={() => handleSort(column)}
+                  onClick={() => column !== "actions" && handleSort(column)}
                 >
                   {column === "id"
                     ? "ID"
+                    : column === "actions"
+                    ? "Actions"
                     : column.charAt(0).toUpperCase() + column.slice(1).replace(/_/g, " ")}{" "}
                   {sortColumn === column && (sortOrder === "asc" ? "↑" : "↓")}
                 </th>
@@ -246,6 +256,17 @@ const Purchases = () => {
                     <td className="border p-2 text-center">
                       {new Date(purchase.date).toLocaleDateString()}
                     </td>
+                    <td className="border p-2 text-center">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(purchase.id);
+                        }}
+                        className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
+                      >
+                        Edit
+                      </button>
+                    </td>
                   </tr>
                   {/* Expanded Row */}
                   {expandedRow === purchase.id && <ExpandedRow purchase={purchase} />}
@@ -253,7 +274,7 @@ const Purchases = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="15" className="border p-2 text-center">
+                <td colSpan="12" className="border p-2 text-center">
                   No matching records found.
                 </td>
               </tr>

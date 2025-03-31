@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import EditForm from "./EditForm"; // Import the EditForm component
+import { useNavigate } from "react-router-dom";
 
 const Edit = () => {
   const API_URL = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
   const [purchases, setPurchases] = useState([]); // All purchases fetched from the backend
   const [filteredPurchases, setFilteredPurchases] = useState([]); // Purchases filtered by search
-  const [selectedId, setSelectedId] = useState(null); // Track the selected purchase ID
   const [searchTerm, setSearchTerm] = useState(""); // State for the search term
 
   // Fetch all purchases from the backend
@@ -43,9 +43,9 @@ const Edit = () => {
     setFilteredPurchases(purchases); // Show all purchases
   };
 
-  // Handle row click to select a purchase
-  const handleRowClick = (id) => {
-    setSelectedId(selectedId === id ? null : id); // Toggle selection
+  // Handle edit button click
+  const handleEdit = (id) => {
+    navigate(`/edit/${id}`);
   };
 
   return (
@@ -99,36 +99,28 @@ const Edit = () => {
             <th className="border p-2 text-center">Vendor Name</th>
             <th className="border p-2 text-center">Business Type</th>
             <th className="border p-2 text-center">Source Type</th>
+            <th className="border p-2 text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
           {filteredPurchases.map((purchase) => (
-            <React.Fragment key={purchase.id}>
-              {/* Main Row */}
-              <tr
-                onClick={() => handleRowClick(purchase.id)}
-                className={`cursor-pointer hover:bg-gray-100 ${
-                  selectedId === purchase.id ? "bg-blue-100" : ""
-                }`}
-              >
-                <td className="border p-2 text-center">{purchase.id}</td>
-                <td className="border p-2 text-center">{purchase.industries || "-"}</td>
-                <td className="border p-2 text-center">{purchase.type || "-"}</td>
-                <td className="border p-2 text-center">{purchase.product}</td>
-                <td className="border p-2 text-center">{purchase.vendorName}</td>
-                <td className="border p-2 text-center">{purchase.businessType}</td>
-                <td className="border p-2 text-center">{purchase.sourceType || "-"}</td>
-              </tr>
-
-              {/* Expanded Row with EditForm */}
-              {selectedId === purchase.id && (
-                <tr>
-                  <td colSpan="7" className="p-4 bg-gray-50">
-                    <EditForm id={purchase.id} /> {/* Pass the selected ID to EditForm */}
-                  </td>
-                </tr>
-              )}
-            </React.Fragment>
+            <tr key={purchase.id} className="hover:bg-gray-50">
+              <td className="border p-2 text-center">{purchase.id}</td>
+              <td className="border p-2 text-center">{purchase.industries || "-"}</td>
+              <td className="border p-2 text-center">{purchase.type || "-"}</td>
+              <td className="border p-2 text-center">{purchase.product}</td>
+              <td className="border p-2 text-center">{purchase.vendorName}</td>
+              <td className="border p-2 text-center">{purchase.businessType}</td>
+              <td className="border p-2 text-center">{purchase.sourceType || "-"}</td>
+              <td className="border p-2 text-center">
+                <button
+                  onClick={() => handleEdit(purchase.id)}
+                  className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
+                >
+                  Edit
+                </button>
+              </td>
+            </tr>
           ))}
         </tbody>
       </table>
