@@ -11,7 +11,8 @@ import {
   RiUserSettingsLine,
   RiBuildingLine,
   RiStoreLine,
-  RiGlobalLine
+  RiGlobalLine,
+  RiBox3Line
 } from "react-icons/ri";
 import logo from "../assets/logo.png";
 
@@ -19,11 +20,11 @@ const Welcome = () => {
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
   const [stats, setStats] = useState({
-    totalVendors: 0,
-    manufacturers: 0,
-    distributors: 0,
-    importers: 0,
-    traders: 0,
+    totalProducts: 0,
+    Manufacturers: 0,
+    Distributors: 0,
+    Importers: 0,
+    Traders: 0,
     recentUpdates: 0
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -41,12 +42,20 @@ const Welcome = () => {
       const now = new Date();
       const thirtyDaysAgo = new Date(now.setDate(now.getDate() - 30));
 
+      // Get  vendors by business type
+      const Vendors = {
+        manufacturers: new Set(data.filter(v => v.businessType === "Manufacturer").map(v => v.vendorName)),
+        distributors: new Set(data.filter(v => v.businessType === "Distributor").map(v => v.vendorName)),
+        importers: new Set(data.filter(v => v.businessType === "Importer").map(v => v.vendorName)),
+        traders: new Set(data.filter(v => v.businessType === "Trader").map(v => v.vendorName))
+      };
+
       const stats = {
-        totalVendors: data.length,
-        manufacturers: data.filter(v => v.businessType === "Manufacturer").length,
-        distributors: data.filter(v => v.businessType === "Distributor").length,
-        importers: data.filter(v => v.businessType === "Importer").length,
-        traders: data.filter(v => v.businessType === "Trader").length,
+        totalProducts: data.length,
+        Manufacturers: Vendors.manufacturers.size,
+        Distributors: Vendors.distributors.size,
+        Importers: Vendors.importers.size,
+        Traders: Vendors.traders.size,
         recentUpdates: data.filter(v => new Date(v.date) > thirtyDaysAgo).length
       };
 
@@ -76,9 +85,9 @@ const Welcome = () => {
             <div className={`p-2 rounded-lg ${gradient} mr-3`}>
               <Icon className="text-2xl text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
+            <h3 className="text-xl text-white font-semibold text-gray-900">{title}</h3>
           </div>
-          <p className="text-gray-600 text-sm">{description}</p>
+          <p className="text-white text-sm font-semibold">{description}</p>
         </div>
         <RiArrowRightLine className="text-xl text-gray-400 ml-4" />
       </div>
@@ -175,36 +184,36 @@ const Welcome = () => {
         {/* Quick Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <StatCard
-            title="Total Vendors"
-            value={stats.totalVendors}
-            icon={RiUserSettingsLine}
+            title="Total Products"
+            value={stats.totalProducts}
+            icon={RiBox3Line}
             color="bg-blue-500"
-            subtitle="Registered in database"
+            subtitle="Total product entries"
           />
           <StatCard
             title="Manufacturers"
-            value={stats.manufacturers}
+            value={stats.Manufacturers}
             icon={RiBuildingLine}
             color="bg-green-500"
             subtitle="Direct manufacturers"
           />
           <StatCard
             title="Distributors"
-            value={stats.distributors}
+            value={stats.Distributors}
             icon={RiStoreLine}
             color="bg-purple-500"
             subtitle="Distribution partners"
           />
           <StatCard
             title="Importers"
-            value={stats.importers}
+            value={stats.Importers}
             icon={RiGlobalLine}
             color="bg-yellow-500"
             subtitle="International vendors"
           />
           <StatCard
             title="Traders"
-            value={stats.traders}
+            value={stats.Traders}
             icon={RiStoreLine}
             color="bg-red-500"
             subtitle="Trading partners"
