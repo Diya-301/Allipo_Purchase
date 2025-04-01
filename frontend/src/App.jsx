@@ -10,7 +10,6 @@ import Navbar from "./components/Navbar";
 import Add from "./components/Add";
 import Edit from "./components/Edit";
 import EditForm from "./components/EditForm";
-import BackupManager from "./components/BackupManager";
 
 const App = () => {
   const location = useLocation();
@@ -39,7 +38,6 @@ const App = () => {
           <Route path="/add" element={<ProtectedRoute> <Add /> </ProtectedRoute>} />
           <Route path="/edit" element={<ProtectedRoute> <Edit /> </ProtectedRoute>} />
           <Route path="/edit/:id" element={<ProtectedRoute> <EditForm /> </ProtectedRoute>} />
-          <Route path="/backup" element={<ProtectedRoute> <BackupManager /> </ProtectedRoute>} />
         </Routes>
 
     </>

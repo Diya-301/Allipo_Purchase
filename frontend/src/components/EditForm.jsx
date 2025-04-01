@@ -128,7 +128,7 @@ const EditForm = () => {
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         try {
             // Validate that all contacts have required fields
             const isValid = formData.contacts.every(
@@ -137,12 +137,12 @@ const EditForm = () => {
                     contact.contactPhone &&
                     contact.contactEmail
             );
-
+    
             if (!isValid) {
                 toast.error("Please fill in all contact details.");
                 return;
             }
-
+            
             // First, get all entries with the same vendor name
             const response = await axios.get(`${API_URL}/api/purchases`);
             const allPurchases = response.data;
@@ -158,6 +158,7 @@ const EditForm = () => {
                     address: formData.address,
                     website: formData.website,
                 };
+                delete updatedData._id;
                 return axios.put(`${API_URL}/api/purchases/${purchase.id}`, updatedData);
             });
 
@@ -169,9 +170,10 @@ const EditForm = () => {
 
             toast.success(`Updated vendor entry and synchronized contact information for ${sameVendorEntries.length} related entries!`);
             navigate("/view");
+
         } catch (error) {
             console.error("Error updating vendor:", error);
-            toast.error("Failed to update vendor entry. Please try again.");
+            toast.error(`Failed to update vendor entry. ${error.response?.data?.error || "Please try again."}`);
         }
     };
 

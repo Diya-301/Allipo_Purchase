@@ -93,9 +93,11 @@ router.put("/:id", async (req, res) => {
             return res.status(400).json({ message: "Invalid ID format" });
         }
 
+        const { _id, ...updateData } = req.body;
+
         const updatedPurchase = await Purchase.findOneAndUpdate(
             { id: requestedId },
-            req.body,
+            updateData,
             { new: true }
         );
 
@@ -112,7 +114,8 @@ router.put("/:id", async (req, res) => {
 
         res.json(purchaseObject);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("Error updating purchase:", error);
+        res.status(500).json({ error: "Failed to update purchase. Please try again." });
     }
 });
 
@@ -153,12 +156,14 @@ router.get("/vendor/:vendorName", async (req, res) => {
             contacts,
             address,
             website,
+            businessType,
         } = vendor;
 
         res.json({
             contacts,
             address,
             website,
+            businessType,
         });
     } catch (error) {
         console.error("Error fetching vendor details:", error);

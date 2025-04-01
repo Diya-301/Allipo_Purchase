@@ -114,9 +114,9 @@ const Navbar = () => {
             className="bg-green-500"
           />
           <NavButton
-            to="/backup"
+            onClick={handleBackupDownload}
             icon={RiDownloadCloud2Line}
-            text="Backup Manager"
+            text="Backup"
             className="bg-purple-500"
           />
           <button
@@ -158,9 +158,9 @@ const Navbar = () => {
               className="bg-green-500"
             />
             <NavButton
-              to="/backup"
+              onClick={handleBackupDownload}
               icon={RiDownloadCloud2Line}
-              text="Backup Manager"
+              text="Backup"
               className="bg-purple-500"
             />
             <button

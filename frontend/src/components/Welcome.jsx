@@ -38,10 +38,6 @@ const Welcome = () => {
       const response = await axios.get(`${API_URL}/api/purchases`);
       const data = response.data;
 
-      // Calculate statistics
-      const now = new Date();
-      const thirtyDaysAgo = new Date(now.setDate(now.getDate() - 30));
-
       // Get  vendors by business type
       const Vendors = {
         manufacturers: new Set(data.filter(v => v.businessType === "Manufacturer").map(v => v.vendorName)),
@@ -56,7 +52,6 @@ const Welcome = () => {
         Distributors: Vendors.distributors.size,
         Importers: Vendors.importers.size,
         Traders: Vendors.traders.size,
-        recentUpdates: data.filter(v => new Date(v.date) > thirtyDaysAgo).length
       };
 
       setStats(stats);
@@ -217,13 +212,6 @@ const Welcome = () => {
             icon={RiStoreLine}
             color="bg-red-500"
             subtitle="Trading partners"
-          />
-          <StatCard
-            title="Recent Updates"
-            value={stats.recentUpdates}
-            icon={RiUserSettingsLine}
-            color="bg-indigo-500"
-            subtitle="Last 30 days"
           />
         </div>
       </div>
