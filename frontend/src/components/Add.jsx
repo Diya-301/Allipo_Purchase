@@ -78,7 +78,6 @@ const Add = () => {
         contacts,
         address,
         website,
-        businessType
       } = response.data;
 
       // Autofill the form fields
@@ -87,7 +86,6 @@ const Add = () => {
         contacts: contacts || [{ contactPerson: "", contactPhone: "", contactEmail: "" }],
         address: address || "",
         website: website || "",
-        businessType: businessType || "Manufacturer",
       }));
 
       toast.success("Vendor details fetched successfully!");
@@ -108,7 +106,6 @@ const Add = () => {
       address: "",
       website:"",
       contacts: [{ contactPerson: "", contactPhone: "", contactEmail: "" }],
-      businessType: "Manufacturer",
     }));
 
     toast.success("Vendor details reset successfully!");
