@@ -8,7 +8,8 @@ import {
   RiAddCircleLine, 
   RiDownloadCloud2Line,
   RiMenuLine,
-  RiCloseLine
+  RiCloseLine,
+  RiSettings4Line
 } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -112,13 +113,12 @@ const Navbar = () => {
             text="Add to Database"
             className="bg-green-500"
           />
-          <button
-            onClick={handleBackupDownload}
-            className="bg-purple-500 font-medium rounded-md text-white px-5 py-2 hover:bg-purple-600 text-sm flex items-center justify-center gap-2"
-          >
-            <RiDownloadCloud2Line className="text-xl" />
-            <span>Download Backup</span>
-          </button>
+          <NavButton
+            to="/backup"
+            icon={RiDownloadCloud2Line}
+            text="Backup Manager"
+            className="bg-purple-500"
+          />
           <button
             onClick={onSubmitHandler}
             className="bg-red-700 font-medium rounded-md text-white px-5 py-2 hover:bg-russian_violet text-sm flex items-center justify-center gap-2"
@@ -157,13 +157,12 @@ const Navbar = () => {
               text="Add to Database"
               className="bg-green-500"
             />
-            <button
-              onClick={handleBackupDownload}
-              className="bg-purple-500 font-medium rounded-md text-white px-5 py-2 hover:bg-purple-600 text-sm flex items-center justify-center gap-2"
-            >
-              <RiDownloadCloud2Line className="text-xl" />
-              <span>Download Backup</span>
-            </button>
+            <NavButton
+              to="/backup"
+              icon={RiDownloadCloud2Line}
+              text="Backup Manager"
+              className="bg-purple-500"
+            />
             <button
               onClick={onSubmitHandler}
               className="bg-true_blue font-medium rounded-md text-white px-5 py-2 hover:bg-russian_violet text-sm flex items-center justify-center gap-2"
