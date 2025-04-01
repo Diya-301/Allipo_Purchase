@@ -153,12 +153,14 @@ router.get("/vendor/:vendorName", async (req, res) => {
             contacts,
             address,
             website,
+            businessType,
         } = vendor;
 
         res.json({
             contacts,
             address,
             website,
+            businessType,
         });
     } catch (error) {
         console.error("Error fetching vendor details:", error);
